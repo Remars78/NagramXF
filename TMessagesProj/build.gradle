@@ -168,6 +168,8 @@ android {
             dimension 'runtime'
             if (nativeTarget.isBlank()) {
                 ndk.abiFilters.addAll(normalAbis)
+            } else {
+                ndk.abiFilters.add(nativeTarget)
             }
             externalNativeBuild.cmake.arguments '-DENABLE_PLUGINS=OFF'
         }
@@ -175,6 +177,8 @@ android {
             dimension 'runtime'
             if (nativeTarget.isBlank()) {
                 ndk.abiFilters.addAll(pluginAbis)
+            } else {
+                ndk.abiFilters.add(nativeTarget)
             }
             externalNativeBuild.cmake.arguments '-DENABLE_PLUGINS=ON'
             proguardFiles 'proguard-plugin-rules.pro'

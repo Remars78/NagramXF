@@ -756,7 +756,7 @@ public class ImageUpdater implements NotificationCenter.NotificationCenterDelega
                 return;
             }
         }
-        if (xyz.nextalone.nagram.NaConfig.INSTANCE.getUseGooglePhotoPicker().getValue()) {
+        if (xyz.nextalone.nagram.NaConfig.INSTANCE.getUseGooglePhotoPicker().Bool()) {
             try {
                 Intent photoPickerIntent = tw.nekomimi.nekogram.helpers.PhotoPickerHelper.createVisualMediaIntent(canSelectVideo, 1);
                 parentFragment.startActivityForResult(photoPickerIntent, 14);
@@ -777,7 +777,7 @@ public class ImageUpdater implements NotificationCenter.NotificationCenterDelega
             public void startPhotoSelectActivity() {
                 try {
                     Intent photoPickerIntent;
-                    if (xyz.nextalone.nagram.NaConfig.INSTANCE.getUseGooglePhotoPicker().getValue()) {
+                    if (xyz.nextalone.nagram.NaConfig.INSTANCE.getUseGooglePhotoPicker().Bool()) {
                         photoPickerIntent = tw.nekomimi.nekogram.helpers.PhotoPickerHelper.createVisualMediaIntent(false, 1);
                     } else {
                         photoPickerIntent = new Intent(Intent.ACTION_GET_CONTENT).setType("image/*");

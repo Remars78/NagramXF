@@ -78,6 +78,7 @@ jobs:
       - name: Staging Build
         env:
           COMMIT_ID: ${{ github.event.head_commit.id }}
+          NATIVE_TARGET: arm64-v8a
         run: |
           export LOCAL_PROPERTIES="${{ secrets.LOCAL_PROPERTIES }}"
           export BUILD_TIMESTAMP=$(date +%s)

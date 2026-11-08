@@ -15103,7 +15103,7 @@ public class ChatActivity extends BaseFragment implements
                 FileLog.e(e);
             }
         } else if (which == attach_gallery) {
-            if (xyz.nextalone.nagram.NaConfig.INSTANCE.getUseGooglePhotoPicker().getValue()) {
+            if (xyz.nextalone.nagram.NaConfig.INSTANCE.getUseGooglePhotoPicker().Bool()) {
                 int maxPhotos;
                 if (chatMode == MODE_WELCOME_MESSAGES) {
                     maxPhotos = 1;
@@ -15154,7 +15154,7 @@ public class ChatActivity extends BaseFragment implements
 
                 @Override
                 public void startPhotoSelectActivity() {
-                    if (xyz.nextalone.nagram.NaConfig.INSTANCE.getUseGooglePhotoPicker().getValue()) {
+                    if (xyz.nextalone.nagram.NaConfig.INSTANCE.getUseGooglePhotoPicker().Bool()) {
                         try {
                             Intent intent = tw.nekomimi.nekogram.helpers.PhotoPickerHelper.createVisualMediaIntent(true, 100);
                             startActivityForResult(intent, tw.nekomimi.nekogram.helpers.PhotoPickerHelper.REQUEST_CODE_SYSTEM_PICKER);
