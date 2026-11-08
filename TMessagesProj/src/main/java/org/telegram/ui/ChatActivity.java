@@ -15103,6 +15103,19 @@ public class ChatActivity extends BaseFragment implements
                 FileLog.e(e);
             }
         } else if (which == attach_gallery) {
+            if (xyz.nextalone.nagram.NaConfig.INSTANCE.getUseGooglePhotoPicker().getValue()) {
+                int maxPhotos;
+                if (chatMode == MODE_WELCOME_MESSAGES) {
+                    maxPhotos = 1;
+                } else if (currentChat != null && !ChatObject.hasAdminRights(currentChat) && currentChat.slowmode_enabled) {
+                    maxPhotos = 10;
+                } else {
+                    maxPhotos = editingMessageObject != null ? 1 : 100;
+                }
+                Intent intent = tw.nekomimi.nekogram.helpers.PhotoPickerHelper.createVisualMediaIntent(true, maxPhotos);
+                startActivityForResult(intent, tw.nekomimi.nekogram.helpers.PhotoPickerHelper.REQUEST_CODE_SYSTEM_PICKER);
+                return;
+            }
             final Activity activity = getParentActivity();
             if (Build.VERSION.SDK_INT >= 33) {
                 if (activity.checkSelfPermission(Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED) {
@@ -15141,6 +15154,15 @@ public class ChatActivity extends BaseFragment implements
 
                 @Override
                 public void startPhotoSelectActivity() {
+                    if (xyz.nextalone.nagram.NaConfig.INSTANCE.getUseGooglePhotoPicker().getValue()) {
+                        try {
+                            Intent intent = tw.nekomimi.nekogram.helpers.PhotoPickerHelper.createVisualMediaIntent(true, 100);
+                            startActivityForResult(intent, tw.nekomimi.nekogram.helpers.PhotoPickerHelper.REQUEST_CODE_SYSTEM_PICKER);
+                            return;
+                        } catch (Exception e) {
+                            FileLog.e(e);
+                        }
+                    }
                     try {
                         Intent videoPickerIntent = new Intent();
                         videoPickerIntent.setType("video/*");
@@ -21480,7 +21502,7 @@ public class ChatActivity extends BaseFragment implements
 //                path = AndroidUtilities.getPath(photoInfo.uri);
                 if (path == null) {
                     try {
-                        final File file = AndroidUtilities.generatePicturePath(isSecretChat, "");
+                        final File file = photoInfo.isVideo ? AndroidUtilities.generateVideoPath(isSecretChat) : AndroidUtilities.generatePicturePath(isSecretChat, "");
                         InputStream in = ApplicationLoader.applicationContext.getContentResolver().openInputStream(photoInfo.uri);
                         FileOutputStream fos = new FileOutputStream(file);
                         byte[] buffer = new byte[8 * 1024];
@@ -21503,6 +21525,18 @@ public class ChatActivity extends BaseFragment implements
             }
             Pair<Integer, Integer> orientation = AndroidUtilities.getImageOrientation(path);
             MediaController.PhotoEntry entry = new MediaController.PhotoEntry(0, 0, 0, path, orientation.first, photoInfo.isVideo, 0, 0, 0).setOrientation(orientation);
+            if (photoInfo.isVideo) {
+                try {
+                    android.media.MediaMetadataRetriever retriever = new android.media.MediaMetadataRetriever();
+                    retriever.setDataSource(path);
+                    String durationStr = retriever.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_DURATION);
+                    if (durationStr != null) {
+                        entry.duration = (int) Math.ceil(Long.parseLong(durationStr) / 1000.0);
+                    }
+                    retriever.release();
+                } catch (Throwable ignore) {
+                }
+            }
             if (a == photoPathes.size() - 1 && caption != null) {
                 entry.caption = caption;
             }
@@ -22218,6 +22252,24 @@ public class ChatActivity extends BaseFragment implements
             } else if (requestCode == 28) {
                 if (chatAttachAlert != null) {
                     chatAttachAlert.onPollAttachFilePicker(data);
+                }
+            } else if (requestCode == tw.nekomimi.nekogram.helpers.PhotoPickerHelper.REQUEST_CODE_SYSTEM_PICKER) {
+                if (data != null) {
+                    java.util.List<Uri> uris = tw.nekomimi.nekogram.helpers.PhotoPickerHelper.getPickedUris(data);
+                    if (!uris.isEmpty()) {
+                        ArrayList<SendMessagesHelper.SendingMediaInfo> mediaInfos = new ArrayList<>();
+                        for (Uri uri : uris) {
+                            SendMessagesHelper.SendingMediaInfo info = new SendMessagesHelper.SendingMediaInfo();
+                            info.uri = uri;
+                            info.isVideo = tw.nekomimi.nekogram.helpers.PhotoPickerHelper.isVideoUri(uri);
+                            mediaInfos.add(info);
+                        }
+                        CharSequence currentCaption = chatActivityEnterView != null ? chatActivityEnterView.getFieldText() : null;
+                        if (!openPhotosEditor(mediaInfos, currentCaption)) {
+                            SendMessagesHelper.prepareSendingMedia(getAccountInstance(), mediaInfos, dialog_id, replyingMessageObject, getThreadMessage(), null, replyingQuote, false, false, editingMessageObject, true, 0, 0, chatMode, false, null, getMessageChatSendParams(), 0, false, 0, getSendMonoForumPeerId(), messageSuggestionParams);
+                            afterMessageSend();
+                        }
+                    }
                 }
             }
         }

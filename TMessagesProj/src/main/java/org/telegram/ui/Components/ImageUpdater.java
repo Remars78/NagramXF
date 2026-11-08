@@ -756,6 +756,15 @@ public class ImageUpdater implements NotificationCenter.NotificationCenterDelega
                 return;
             }
         }
+        if (xyz.nextalone.nagram.NaConfig.INSTANCE.getUseGooglePhotoPicker().getValue()) {
+            try {
+                Intent photoPickerIntent = tw.nekomimi.nekogram.helpers.PhotoPickerHelper.createVisualMediaIntent(canSelectVideo, 1);
+                parentFragment.startActivityForResult(photoPickerIntent, 14);
+                return;
+            } catch (Exception e) {
+                FileLog.e(e);
+            }
+        }
         PhotoAlbumPickerActivity fragment = new PhotoAlbumPickerActivity(canSelectVideo ? PhotoAlbumPickerActivity.SELECT_TYPE_AVATAR_VIDEO : PhotoAlbumPickerActivity.SELECT_TYPE_AVATAR, false, false, null);
         fragment.setAllowSearchImages(searchAvailable);
         fragment.setDelegate(new PhotoAlbumPickerActivity.PhotoAlbumPickerActivityDelegate() {
@@ -767,8 +776,15 @@ public class ImageUpdater implements NotificationCenter.NotificationCenterDelega
             @Override
             public void startPhotoSelectActivity() {
                 try {
-                    Intent photoPickerIntent = new Intent(Intent.ACTION_GET_CONTENT);
-                    photoPickerIntent.setType("image/*");
+                    Intent photoPickerIntent;
+                    if (xyz.nextalone.nagram.NaConfig.INSTANCE.getUseGooglePhotoPicker().getValue()) {
+                        photoPickerIntent = tw.nekomimi.nekogram.helpers.PhotoPickerHelper.createVisualMediaIntent(false, 1);
+                    } else {
+                        photoPickerIntent = new Intent(Intent.ACTION_GET_CONTENT).setType("image/*");
+    
+                    }
+
+
                     parentFragment.startActivityForResult(photoPickerIntent, 14);
                 } catch (Exception e) {
                     FileLog.e(e);
@@ -854,10 +870,18 @@ public class ImageUpdater implements NotificationCenter.NotificationCenterDelega
                 AndroidUtilities.addMediaToGallery(currentPicturePath);
                 currentPicturePath = null;
             } else if (requestCode == 14) {
-                if (data == null || data.getData() == null) {
+                if (data == null) {
                     return;
                 }
-                startCrop(null, data.getData());
+                Uri uri = data.getData();
+                if (uri == null && data.getClipData() != null && data.getClipData().getItemCount() > 0) {
+                    uri = data.getClipData().getItemAt(0).getUri();
+                }
+                if (uri == null) {
+                    return;
+                }
+                startCrop(null, uri);
+
             } else if (requestCode == 15) {
                 openPhotoForEdit(currentPicturePath, null, 0, true);
                 AndroidUtilities.addMediaToGallery(currentPicturePath);

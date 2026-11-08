@@ -105,4 +105,7 @@
     <string name="VideoPlayerDecoderPreferSW">Предпочтение SW</string>
     <string name="VideoPlayerDecoderHardware">Только HW</string>
     <string name="VideoPlayerDecoderPreferHW">Предпочтение HW</string>
+    <string name="CustomSettings">Кастомные настройки</string>
+    <string name="UseGooglePhotoPicker">Системный Google Photo Picker</string>
+    <string name="UseGooglePhotoPickerNotice">Использовать системный селектор фото и видео (включая Google Фото из облака) вместо встроенной галереи Telegram.</string>
 </resources>

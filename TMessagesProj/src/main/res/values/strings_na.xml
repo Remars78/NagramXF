@@ -113,4 +113,7 @@
     <string name="VideoPlayerDecoderPreferSW">Prefer SW</string>
     <string name="VideoPlayerDecoderHardware">HW Only</string>
     <string name="VideoPlayerDecoderPreferHW">Prefer HW</string>
+    <string name="CustomSettings">Custom Settings</string>
+    <string name="UseGooglePhotoPicker">System Google Photo Picker</string>
+    <string name="UseGooglePhotoPickerNotice">Use system photo and video picker (including cloud Google Photos) instead of Telegram\'s built-in gallery.</string>
 </resources>
