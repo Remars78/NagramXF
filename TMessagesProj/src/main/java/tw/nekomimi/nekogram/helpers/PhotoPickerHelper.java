@@ -106,4 +106,14 @@ public class PhotoPickerHelper {
         }
         return false;
     }
+
+    public static void launchPhotoPicker(org.telegram.ui.ActionBar.BaseFragment fragment, int requestCode, boolean allowVideo) {
+        if (fragment == null) return;
+        try {
+            Intent intent = createVisualMediaIntent(allowVideo, 100);
+            fragment.startActivityForResult(intent, requestCode);
+        } catch (Throwable e) {
+            org.telegram.messenger.FileLog.e(e);
+        }
+    }
 }
