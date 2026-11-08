@@ -76,6 +76,12 @@ public class PhotoAttachPermissionCell extends FrameLayout {
 
             imageView.setLayoutParams(LayoutHelper.createFrame(44, 44, Gravity.CENTER, 0, 0, 2, 27));
             imageView2.setLayoutParams(LayoutHelper.createFrame(44, 44, Gravity.CENTER, 0, 0, 2, 27));
+        } else if (type == 10) {
+            imageView.setImageResource(R.drawable.msg_openin);
+            imageView2.setVisibility(GONE);
+            textView.setText(LocaleController.getString("GooglePhotosTileTitle", R.string.GooglePhotosTileTitle));
+
+            imageView.setLayoutParams(LayoutHelper.createFrame(44, 44, Gravity.CENTER, 0, 0, 2, 27));
         } else {
             imageView.setImageResource(R.drawable.msg_openin);
             imageView2.setVisibility(GONE);

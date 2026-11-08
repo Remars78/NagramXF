@@ -140,6 +140,11 @@ public class ChatAttachAlertPhotoLayout extends ChatAttachAlert.AttachAlertLayou
 
     private static final float RADIUS = 16f;
     private static final int VIEW_TYPE_AVATAR_CONSTRUCTOR = 4;
+    private static final int VIEW_TYPE_GOOGLE_PHOTO_PICKER = 10;
+
+    public static boolean hasGooglePhotoPickerTile() {
+        return xyz.nextalone.nagram.NaConfig.INSTANCE.getUseGooglePhotoPicker().Bool();
+    }
     private static final int SHOW_FAST_SCROLL_MIN_COUNT = 30;
     private final boolean needCamera;
 
@@ -924,15 +929,23 @@ public class ChatAttachAlertPhotoLayout extends ChatAttachAlert.AttachAlertLayou
             if (!mediaEnabled || parentAlert.destroyed) {
                 return;
             }
-            if (needCamera && isAttachCameraMovedToBottom()) {
-                position++;
-            }
             BaseFragment fragment = parentAlert.baseFragment;
             if (fragment == null) {
                 fragment = LaunchActivity.getLastFragment();
             }
             if (fragment == null) {
                 return;
+            }
+            if (hasGooglePhotoPickerTile()) {
+                if (position == 0) {
+                    parentAlert.dismiss(true);
+                    tw.nekomimi.nekogram.helpers.PhotoPickerHelper.launchPhotoPicker(fragment, tw.nekomimi.nekogram.helpers.PhotoPickerHelper.REQUEST_CODE_SYSTEM_PICKER, true);
+                    return;
+                }
+                position--;
+            }
+            if (needCamera && isAttachCameraMovedToBottom()) {
+                position++;
             }
             if (view instanceof GalleryEmptyView) {
                 return;
@@ -4448,6 +4461,9 @@ public class ChatAttachAlertPhotoLayout extends ChatAttachAlert.AttachAlertLayou
         }
 
         private MediaController.PhotoEntry getPhoto(int position) {
+            if (hasGooglePhotoPickerTile() && this == adapter) {
+                position--;
+            }
             if (hasCameraSpaceRow && position > itemsPerRow) {
                 position--;
             }
@@ -4460,7 +4476,16 @@ public class ChatAttachAlertPhotoLayout extends ChatAttachAlert.AttachAlertLayou
         @Override
         public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
             switch (holder.getItemViewType()) {
+                case VIEW_TYPE_GOOGLE_PHOTO_PICKER: {
+                    PhotoAttachPermissionCell cell = (PhotoAttachPermissionCell) holder.itemView;
+                    cell.setItemSize(itemSize);
+                    cell.setType(10);
+                    break;
+                }
                 case 0: {
+                    if (hasGooglePhotoPickerTile() && this == adapter) {
+                        position--;
+                    }
                     if (hasCameraSpaceRow && position > itemsPerRow) {
                         position--;
                     }
@@ -4551,6 +4576,7 @@ public class ChatAttachAlertPhotoLayout extends ChatAttachAlert.AttachAlertLayou
                         }
                     });
                     break;
+                case VIEW_TYPE_GOOGLE_PHOTO_PICKER:
                 case VIEW_TYPE_CELL_PERMISSION:
                 default:
                     holder = new RecyclerListView.Holder(new PhotoAttachPermissionCell(mContext, resourcesProvider));
@@ -4620,6 +4646,9 @@ public class ChatAttachAlertPhotoLayout extends ChatAttachAlert.AttachAlertLayou
             }
 
             int count = 0;
+            if (hasGooglePhotoPickerTile() && this == adapter) {
+                count++;
+            }
             if (needCamera && selectedAlbumEntry == galleryAlbumEntry) {
                 hasCamera = true;
                 count++;
@@ -4661,6 +4690,15 @@ public class ChatAttachAlertPhotoLayout extends ChatAttachAlert.AttachAlertLayou
                 return position == 0 ? VIEW_TYPE_EMPTY : 2;
             }
 
+            if (this == adapter && position == itemsCount - 1) {
+                return 2;
+            }
+            if (hasGooglePhotoPickerTile() && this == adapter) {
+                if (position == 0) {
+                    return VIEW_TYPE_GOOGLE_PHOTO_PICKER;
+                }
+                position--;
+            }
             int localPosition = position;
             if (needCamera && position == 0 && selectedAlbumEntry == galleryAlbumEntry) {
                 if (noCameraPermissions) {
@@ -4681,9 +4719,7 @@ public class ChatAttachAlertPhotoLayout extends ChatAttachAlert.AttachAlertLayou
             if (showAvatarConstructor && localPosition == 0) {
                 return VIEW_TYPE_AVATAR_CONSTRUCTOR;
             }
-            if (this == adapter && position == itemsCount - 1) {
-                return 2;
-            } else if (noGalleryPermissions) {
+            if (noGalleryPermissions) {
                 return VIEW_TYPE_CELL_PERMISSION;
             }
             return 0;

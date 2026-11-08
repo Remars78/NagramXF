@@ -2801,6 +2801,11 @@ public class ChatAttachAlert extends BottomSheet implements NotificationCenter.N
                 final Activity activity = lastFragment.getParentActivity();
                 int num = view.getTag() instanceof Integer ? (Integer) view.getTag() : -1;
                 if (num == 1) {
+                    if (xyz.nextalone.nagram.NaConfig.INSTANCE.getUseGooglePhotoPicker().Bool()) {
+                        dismiss(true);
+                        tw.nekomimi.nekogram.helpers.PhotoPickerHelper.launchPhotoPicker(baseFragment, tw.nekomimi.nekogram.helpers.PhotoPickerHelper.REQUEST_CODE_SYSTEM_PICKER, true);
+                        return;
+                    }
                     if (!photosEnabled && !videosEnabled && checkCanRemoveRestrictionsByBoosts()) {
                         return;
                     }
